@@ -213,6 +213,9 @@ public class BirthDeathSkylineModel extends SpeciesTreeDistribution {
     protected ConditionOn conditionOn=ConditionOn.SURVIVAL;
 
     public Boolean printTempResults;
+    public static final boolean MEASURE_RUN_TIME = true;
+    public double likelihoodTime;
+    public int likelihoodCounts;
 
     @Override
     public void initAndValidate() {
@@ -996,6 +999,9 @@ public class BirthDeathSkylineModel extends SpeciesTreeDistribution {
     @Override
     public double calculateTreeLogLikelihood(TreeInterface tree) {
 
+        long start = System.currentTimeMillis();
+
+
         logP = 0.;
 
         int nTips = tree.getLeafNodeCount();
@@ -1152,6 +1158,18 @@ public class BirthDeathSkylineModel extends SpeciesTreeDistribution {
         if (SAModel) {
             int internalNodeCount = tree.getLeafNodeCount() - ((Tree)tree).getDirectAncestorNodeCount()- 1;
             logP +=  Math.log(2)*internalNodeCount;
+        }
+
+        if (MEASURE_RUN_TIME) {
+            long finish = System.currentTimeMillis();
+            long timeElapsed = finish - start;
+            likelihoodTime += timeElapsed;
+            likelihoodCounts += 1;
+        }
+
+        if (likelihoodCounts == 100000) {
+            System.out.println(likelihoodTime / likelihoodCounts);
+            System. exit(0);
         }
 
         return logP;
